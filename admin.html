@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - REVATRON GIST BLOG</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <form class="login-form" id="loginForm">
+            <div class="logo" style="justify-content: center; margin-bottom: 2rem;">
+                <i class="fas fa-code"></i>
+                <span>REVATRON GIST BLOG Admin</span>
+            </div>
+            <h2>Admin Login</h2>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <div class="error-message" id="loginError"></div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            <p style="text-align: center; margin-top: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+                Default password: <strong>admin123</strong>
+            </p>
+        </form>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="admin-container" style="display: none;">
+        <div class="admin-header">
+            <h1 class="admin-title">Blog Administration</h1>
+            <div class="admin-actions">
+                <button id="darkModeToggleAdmin" class="btn btn-secondary">
+                    <i class="fas fa-moon"></i> Dark Mode
+                </button>
+                <a href="index.html" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> View Blog
+                </a>
+                <button id="logoutBtn" class="btn btn-danger">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Post Creation Form -->
+        <div class="post-form">
+            <h3>Create New Post</h3>
+            <form id="postForm">
+                <input type="hidden" id="editPostId" value="">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="postTitle">Title:</label>
+                        <input type="text" id="postTitle" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="postCategory">Category:</label>
+                        <select id="postCategory" name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="technology">Technology</option>
+                            <option value="programming">Programming</option>
+                            <option value="web-development">Web Development</option>
+                            <option value="mobile">Mobile</option>
+                            <option value="ai">AI & ML</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="postType">Post Type:</label>
+                        <select id="postType" name="postType" required>
+                            <option value="article">Article</option>
+                            <option value="video">Video</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="videoUrlGroup" style="display: none;">
+                        <label for="videoUrl">Video URL (YouTube/Vimeo embed):</label>
+                        <input type="url" id="videoUrl" name="videoUrl" placeholder="https://www.youtube.com/embed/...">
+                        <small style="color: var(--text-secondary);">Use embed URLs for YouTube or Vimeo</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="postExcerpt">Excerpt:</label>
+                    <textarea id="postExcerpt" name="excerpt" placeholder="Brief description of the post..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="postContent">Content:</label>
+                    <textarea id="postContent" name="content" placeholder="Write your post content here..." required style="min-height: 200px;"></textarea>
+                </div>
+
+                <!-- Featured Image Upload -->
+                <div class="form-group">
+                    <label>Featured Image:</label>
+                    <div class="file-upload" onclick="document.getElementById('featuredImage').click()">
+                        <input type="file" id="featuredImage" accept="image/*">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <p>Click to upload featured image</p>
+                    </div>
+                    <img id="featuredImagePreview" class="image-preview" style="display: none;">
+                </div>
+
+                <!-- Gallery Images Upload -->
+                <div class="form-group">
+                    <label>Gallery Images:</label>
+                    <div class="file-upload" onclick="document.getElementById('galleryImages').click()">
+                        <input type="file" id="galleryImages" accept="image/*" multiple>
+                        <i class="fas fa-images" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <p>Click to upload gallery images (multiple)</p>
+                    </div>
+                    <div id="galleryPreview" class="post-gallery" style="margin-top: 1rem;"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="isDraft" name="isDraft">
+                        <label for="isDraft">Save as Draft</label>
+                    </div>
+                    <div style="text-align: right;">
+                        <button type="button" id="cancelEdit" class="btn btn-secondary" style="display: none; margin-right: 0.5rem;">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <span id="submitBtnText">Publish Post</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- User Management -->
+        <div class="user-management" style="margin-bottom: 3rem;">
+            <h3>Registered Users</h3>
+            <div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <span id="userCount" style="color: var(--text-secondary);">Loading users...</span>
+                </div>
+                <button id="exportUsersBtn" class="btn btn-success">
+                    <i class="fas fa-download"></i> Export to CSV
+                </button>
+            </div>
+            
+            <div class="table-container" style="overflow-x: auto;">
+                <table class="posts-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Registration Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <!-- Users will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Posts Management -->
+        <div class="posts-management">
+            <h3>Manage Posts</h3>
+            <div style="margin-bottom: 1rem;">
+                <input type="text" id="adminSearchInput" placeholder="Search posts..." style="padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.25rem; margin-right: 0.5rem;">
+                <select id="adminCategoryFilter" style="padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.25rem; margin-right: 0.5rem;">
+                    <option value="">All Categories</option>
+                    <option value="technology">Technology</option>
+                    <option value="programming">Programming</option>
+                    <option value="web-development">Web Development</option>
+                    <option value="mobile">Mobile</option>
+                    <option value="ai">AI & ML</option>
+                </select>
+                <select id="adminStatusFilter" style="padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.25rem;">
+                    <option value="">All Status</option>
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                </select>
+            </div>
+            
+            <div class="table-container" style="overflow-x: auto;">
+                <table class="posts-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="postsTableBody">
+                        <!-- Posts will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Edit Modal -->
+    <div id="quickEditModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close" onclick="closeQuickEditModal()">&times;</span>
+            <div style="padding: 2rem;">
+                <h3>Quick Edit Post</h3>
+                <form id="quickEditForm">
+                    <input type="hidden" id="quickEditPostId">
+                    
+                    <div class="form-group">
+                        <label for="quickEditTitle">Title:</label>
+                        <input type="text" id="quickEditTitle" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="quickEditCategory">Category:</label>
+                        <select id="quickEditCategory" required>
+                            <option value="technology">Technology</option>
+                            <option value="programming">Programming</option>
+                            <option value="web-development">Web Development</option>
+                            <option value="mobile">Mobile</option>
+                            <option value="ai">AI & ML</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="quickEditExcerpt">Excerpt:</label>
+                        <textarea id="quickEditExcerpt" required></textarea>
+                    </div>
+                    
+                    <div class="checkbox-group" style="margin-bottom: 1rem;">
+                        <input type="checkbox" id="quickEditDraft">
+                        <label for="quickEditDraft">Save as Draft</label>
+                    </div>
+                    
+                    <div style="text-align: right;">
+                        <button type="button" onclick="closeQuickEditModal()" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Post</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
